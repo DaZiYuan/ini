@@ -29,15 +29,15 @@ function encode (obj, opt) {
     if (val && Array.isArray(val)) {
       val.forEach(function (item) {
         if (opt.isArray) {
-          out += safe(k + '[]') + separator + safe(item) + eol
+          out += safe(k + '[]') + separator + safeVal(item) + eol
         } else {
-          out += safe(k) + separator + safe(item) + eol
+          out += safe(k) + separator + safeVal(item) + eol
         }
       })
     } else if (val && typeof val === 'object') {
       children.push(k)
     } else {
-      out += safe(k) + separator + safe(val) + eol
+      out += safe(k) + separator + safeVal(val) + eol
     }
   })
 
@@ -164,6 +164,17 @@ function safe (val) {
     val !== val.trim())
     ? JSON.stringify(val)
     : val.replace(/;/g, '\\;').replace(/#/g, '\\#')
+}
+
+function safeVal(val) {
+  //和上面的区别，取消对=号的判断
+  return typeof val !== "string" ||
+    val.match(/[\r\n]/) ||
+    val.match(/^\[/) ||
+    (val.length > 1 && isQuoted(val)) ||
+    val !== val.trim()
+    ? JSON.stringify(val)
+    : val.replace(/;/g, "\\;").replace(/#/g, "\\#");
 }
 
 function unsafe (val, doUnesc) {
